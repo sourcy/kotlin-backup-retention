@@ -11,7 +11,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 class RetentionRunner(val settings: Settings) : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
         val arguments = Arguments(args)
-
         Retention(settings, arguments).run()
     }
 }

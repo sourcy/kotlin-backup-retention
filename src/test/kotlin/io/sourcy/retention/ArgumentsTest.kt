@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.Test
 import org.springframework.boot.DefaultApplicationArguments
+import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
@@ -37,7 +38,7 @@ class ArgumentsTest {
     fun nowIfNoFakeDate() {
         val applicationArguments = DefaultApplicationArguments(arrayOf())
         val args = Arguments(applicationArguments)
-        assertThat(args.baseDate)
+        assertThat(args.theDate)
                 .isEqualTo((LocalDate.now()))
     }
 
@@ -45,7 +46,7 @@ class ArgumentsTest {
     fun canParseFakeDate() {
         val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=2017-02-15"))
         val args = Arguments(applicationArguments)
-        assertThat(args.baseDate)
+        assertThat(args.theDate)
                 .isEqualTo((LocalDate.of(2017, 2, 15)))
     }
 
@@ -90,4 +91,51 @@ class ArgumentsTest {
         assertThatExceptionOfType(DateTimeParseException::class.java)
                 .isThrownBy { Arguments(applicationArguments) }
     }
+
+    @Test
+    fun currentDirectoryIfNone() {
+        val applicationArguments = DefaultApplicationArguments(arrayOf())
+        val args = Arguments(applicationArguments)
+        assertThat(args.directories)
+                .hasSize(1)
+                .containsExactlyElementsOf(expectedDirs(arrayOf(".")))
+                .allMatch({ dir -> dir.exists() })
+    }
+
+    @Test
+    fun chosenDirectoryIfSupplied() {
+        val dirNames = arrayOf("./src/test/resources/testset")
+        val applicationArguments = DefaultApplicationArguments(dirNames)
+        val args = Arguments(applicationArguments)
+        assertThat(args.directories)
+                .hasSize(1)
+                .containsExactlyElementsOf(expectedDirs(dirNames))
+                .allMatch({ dir -> dir.exists() })
+    }
+
+    @Test
+    fun chosenDirectoriesIfSupplied() {
+        val dirNames = arrayOf("./src/test/resources/testset", ".", "./src")
+        val applicationArguments = DefaultApplicationArguments(dirNames)
+        val args = Arguments(applicationArguments)
+        assertThat(args.directories)
+                .hasSize(3)
+                .containsExactlyElementsOf(expectedDirs(dirNames))
+                .allMatch({ dir -> dir.exists() })
+    }
+
+    @Test
+    fun processDirectoryOnlyOnce() {
+        val dirNames = arrayOf("./src", "src", "./src/test/../../src")
+        val applicationArguments = DefaultApplicationArguments(dirNames)
+        val args = Arguments(applicationArguments)
+        assertThat(args.directories)
+                .hasSize(1)
+                .containsOnly(
+                        File("./src").absoluteFile.normalize())
+                .allMatch({ dir -> dir.exists() })
+    }
+
+    private fun expectedDirs(dirNames: Array<String>) =
+            dirNames.map { File(it).absoluteFile.normalize() }
 }
