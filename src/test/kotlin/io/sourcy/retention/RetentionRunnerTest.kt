@@ -3,8 +3,7 @@ package io.sourcy.retention
 import org.assertj.core.api.Assertions
 import org.junit.Test
 
-class RetentionRunnerTest {
-
+class RetentionRunnerTest : AbstractBaseTest() {
     @Test
     fun executesSuccessfully() {
         main(arrayOf())

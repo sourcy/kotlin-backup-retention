@@ -10,7 +10,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(Settings::class)
 class RetentionRunner(val settings: Settings) : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
-        val arguments = Arguments(args)
+        val arguments = Arguments(args, settings)
+
         Retention(settings, arguments).run()
     }
 }

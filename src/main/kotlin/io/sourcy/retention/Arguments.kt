@@ -4,14 +4,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import java.io.File
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 data class Arguments(private val args: ApplicationArguments,
+                     private val settings: Settings,
                      val useTheForce: Boolean = useTheForce(args),
                      val dryRun: Boolean = dryRun(args),
-                     val theDate: LocalDate = fakeDateOrNow(args),
+                     val theDate: LocalDate = fakeDateOrNow(args, settings),
                      val directories: List<File> = directories(args)) {
-
     companion object {
         private val log = LoggerFactory.getLogger(RetentionRunner::class.java)
 
@@ -19,19 +18,20 @@ data class Arguments(private val args: ApplicationArguments,
 
         private fun dryRun(args: ApplicationArguments) = args.containsOption("dry")
 
-        private fun fakeDateOrNow(args: ApplicationArguments): LocalDate = fakeDate(args) ?: LocalDate.now()
+        private fun fakeDateOrNow(args: ApplicationArguments, settings: Settings): LocalDate =
+                fakeDate(args, settings) ?: LocalDate.now()
 
-        private fun fakeDate(args: ApplicationArguments): LocalDate? =
+        private fun fakeDate(args: ApplicationArguments, settings: Settings): LocalDate? =
                 if (args.containsOption("fake-date")) {
-                    args.getOptionValues("fake-date")?.first()?.let { parseDate(it) }
+                    args.getOptionValues("fake-date")?.first()?.let { parseDate(it, settings) }
                 } else {
                     null
                 }
 
-        private fun parseDate(it: String?) = try {
-            LocalDate.parse(it, DateTimeFormatter.ISO_DATE)
+        private fun parseDate(it: String?, settings: Settings) = try {
+            LocalDate.parse(it, settings.dateFormatter())
         } catch (e: Exception) {
-            log.error("Unable to parse fake date. Please provide date in ISO date format (YYYY-MM-DD).")
+            log.error("Unable to parse fake date. Please provide date in format (${settings.dateFormat}).")
             throw e
         }
 
