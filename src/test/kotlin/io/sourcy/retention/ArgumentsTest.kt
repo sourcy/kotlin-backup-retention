@@ -11,7 +11,7 @@ import java.time.format.DateTimeParseException
 class ArgumentsTest : AbstractBaseTest() {
     @Test
     fun falseIfNoForce() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf())
+        val applicationArguments = DefaultApplicationArguments(arrayOf("."))
         val args = Arguments(applicationArguments, settings)
         assertThat(args.useTheForce)
                 .isFalse()
@@ -19,7 +19,7 @@ class ArgumentsTest : AbstractBaseTest() {
 
     @Test
     fun trueIfDry() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf("--dry"))
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--dry", "."))
         val args = Arguments(applicationArguments, settings)
         assertThat(args.dryRun)
                 .isTrue()
@@ -27,7 +27,7 @@ class ArgumentsTest : AbstractBaseTest() {
 
     @Test
     fun falseIfNoDry() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf())
+        val applicationArguments = DefaultApplicationArguments(arrayOf("."))
         val args = Arguments(applicationArguments, settings)
         assertThat(args.dryRun)
                 .isFalse()
@@ -35,7 +35,7 @@ class ArgumentsTest : AbstractBaseTest() {
 
     @Test
     fun nowIfNoFakeDate() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf())
+        val applicationArguments = DefaultApplicationArguments(arrayOf("."))
         val args = Arguments(applicationArguments, settings)
         assertThat(args.theDate)
                 .isEqualTo((LocalDate.now()))
@@ -43,7 +43,7 @@ class ArgumentsTest : AbstractBaseTest() {
 
     @Test
     fun canParseFakeDate() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=2017-02-15"))
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=2017-02-15", "."))
         val args = Arguments(applicationArguments, settings)
         assertThat(args.theDate)
                 .isEqualTo((LocalDate.of(2017, 2, 15)))
@@ -51,7 +51,7 @@ class ArgumentsTest : AbstractBaseTest() {
 
     @Test
     fun failsForFakeDateWithoutValue1() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date"))
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date", "."))
         assertThatExceptionOfType(NoSuchElementException::class.java)
                 .isThrownBy { Arguments(applicationArguments, settings) }
     }
@@ -59,19 +59,19 @@ class ArgumentsTest : AbstractBaseTest() {
     @Test
     fun failsForFakeDateWithoutValue2() {
         assertThatExceptionOfType(IllegalArgumentException::class.java)
-                .isThrownBy { DefaultApplicationArguments(arrayOf("--fake-date=")) }
+                .isThrownBy { DefaultApplicationArguments(arrayOf("--fake-date=", ".")) }
     }
 
     @Test
     fun failsForFakeDateWithInvalidValue1() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=15.2.2018"))
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=15.2.2018", "."))
         assertThatExceptionOfType(DateTimeParseException::class.java)
                 .isThrownBy { Arguments(applicationArguments, settings) }
     }
 
     @Test
     fun failsForFakeDateWithInvalidValue2() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=2-15-2017"))
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=2-15-2017", "."))
         assertThatExceptionOfType(DateTimeParseException::class.java)
                 .isThrownBy { Arguments(applicationArguments, settings) }
 
@@ -79,26 +79,16 @@ class ArgumentsTest : AbstractBaseTest() {
 
     @Test
     fun failsForFakeDateWithInvalidValue3() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=15-2-2017"))
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=15-2-2017", "."))
         assertThatExceptionOfType(DateTimeParseException::class.java)
                 .isThrownBy { Arguments(applicationArguments, settings) }
     }
 
     @Test
     fun failsForFakeDateWithInvalidValue4() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=2017-15-02"))
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=2017-15-02", "."))
         assertThatExceptionOfType(DateTimeParseException::class.java)
                 .isThrownBy { Arguments(applicationArguments, settings) }
-    }
-
-    @Test
-    fun currentDirectoryIfNone() {
-        val applicationArguments = DefaultApplicationArguments(arrayOf())
-        val args = Arguments(applicationArguments, settings)
-        assertThat(args.directories)
-                .hasSize(1)
-                .containsExactlyElementsOf(expectedDirs(arrayOf(".")))
-                .allMatch({ dir -> dir.exists() })
     }
 
     @Test
@@ -133,6 +123,13 @@ class ArgumentsTest : AbstractBaseTest() {
                 .containsExactly(
                         File("./src").absoluteFile.normalize())
                 .allMatch({ dir -> dir.exists() })
+    }
+
+    @Test
+    fun failsForNoDirectory() {
+        val applicationArguments = DefaultApplicationArguments(arrayOf())
+        assertThatExceptionOfType(IllegalArgumentException::class.java)
+                .isThrownBy { Arguments(applicationArguments, settings) }
     }
 
     private fun expectedDirs(dirNames: Array<String>) =

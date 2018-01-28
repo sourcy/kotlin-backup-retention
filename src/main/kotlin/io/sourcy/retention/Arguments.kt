@@ -37,7 +37,8 @@ data class Arguments(private val args: ApplicationArguments,
 
         private fun directories(args: ApplicationArguments) =
                 if (args.nonOptionArgs == null || args.nonOptionArgs.size == 0) {
-                    listOf(File(".").absoluteFile.normalize())
+                    log.error("No directories specified.")
+                    throw IllegalArgumentException("No directories specified.")
                 } else {
                     args.nonOptionArgs.map { File(it).absoluteFile.normalize() }.distinct()
                 }

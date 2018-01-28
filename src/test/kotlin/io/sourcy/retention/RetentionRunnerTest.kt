@@ -6,7 +6,7 @@ import org.junit.Test
 class RetentionRunnerTest : AbstractBaseTest() {
     @Test
     fun executesSuccessfully() {
-        main(arrayOf())
+        main(arrayOf("--dry-run", "."))
     }
 
     @Test
