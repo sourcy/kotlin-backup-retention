@@ -11,10 +11,16 @@ class Retention(private val settings: Settings,
         log.info("Settings: $settings")
         log.info("Arguments: $arguments")
 
-        RetentionDirectories(arguments.directories.asSequence(), settings)
-                .findMatchingFiles()
+        val retentionFinder = RetentionFinder(settings)
+        val retentionLogic = RetentionLogic(arguments, settings)
+        val retentionReport = RetentionReport(arguments)
+        val retentionExecutor = RetentionExecutor(arguments)
 
-        // TODO("do delete here")
-        log.info("Finished deleting old backups.")
+        retentionFinder
+                .findMatchingFilesIn(arguments.directories.asSequence())
+                .map { retentionLogic.calculateRetentionInfo(it) }
+                .also { retentionReport.printInfo(it) }
+                .let { retentionExecutor.execute(it) }
+                .also { retentionReport.printResult(it) }
     }
 }

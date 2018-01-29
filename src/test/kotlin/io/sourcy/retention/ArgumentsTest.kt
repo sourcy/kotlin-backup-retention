@@ -10,6 +10,14 @@ import java.time.format.DateTimeParseException
 
 class ArgumentsTest : AbstractBaseTest() {
     @Test
+    fun trueIfForce() {
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--force","."))
+        val args = Arguments(applicationArguments, settings)
+        assertThat(args.useTheForce)
+                .isTrue()
+    }
+
+    @Test
     fun falseIfNoForce() {
         val applicationArguments = DefaultApplicationArguments(arrayOf("."))
         val args = Arguments(applicationArguments, settings)
@@ -30,6 +38,22 @@ class ArgumentsTest : AbstractBaseTest() {
         val applicationArguments = DefaultApplicationArguments(arrayOf("."))
         val args = Arguments(applicationArguments, settings)
         assertThat(args.dryRun)
+                .isFalse()
+    }
+
+    @Test
+    fun trueIfVerbose() {
+        val applicationArguments = DefaultApplicationArguments(arrayOf("--verbose", "."))
+        val args = Arguments(applicationArguments, settings)
+        assertThat(args.verbose)
+                .isTrue()
+    }
+
+    @Test
+    fun falseIfNoVerbose() {
+        val applicationArguments = DefaultApplicationArguments(arrayOf("."))
+        val args = Arguments(applicationArguments, settings)
+        assertThat(args.verbose)
                 .isFalse()
     }
 
@@ -74,7 +98,6 @@ class ArgumentsTest : AbstractBaseTest() {
         val applicationArguments = DefaultApplicationArguments(arrayOf("--fake-date=2-15-2017", "."))
         assertThatExceptionOfType(DateTimeParseException::class.java)
                 .isThrownBy { Arguments(applicationArguments, settings) }
-
     }
 
     @Test

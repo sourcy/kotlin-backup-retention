@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.springframework.test.context.TestPropertySource
 import java.time.LocalDate
+import java.time.DayOfWeek.WEDNESDAY
 
 @TestPropertySource(locations = ["classpath:crazy.properties"])
 class SettingsTest : AbstractBaseTest() {
@@ -17,7 +18,9 @@ class SettingsTest : AbstractBaseTest() {
 
         assertThat(settings.daily.keep).isEqualTo(1337)
         assertThat(settings.weekly.keep).isEqualTo(1337)
+        assertThat(settings.weekly.dayOfWeek).isEqualTo(WEDNESDAY)
         assertThat(settings.monthly.keep).isEqualTo(1337)
+        assertThat(settings.monthly.dayOfMonth).isEqualTo(15)
 
         assertThat(settings.files.maxPercentDelete).isEqualTo(1337)
         assertThat(settings.files.fileNameRegexPatterns)
