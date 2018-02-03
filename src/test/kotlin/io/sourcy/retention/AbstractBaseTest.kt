@@ -11,10 +11,14 @@ import java.io.File
 @EnableConfigurationProperties(Settings::class)
 abstract class AbstractBaseTest {
     val testSetDirectory = File("./src/test/resources/testset")
-    @Autowired
-    var settings: Settings = Settings()
 
-    protected fun testArguments(arguments: Array<String>): Arguments {
-        return Arguments(DefaultApplicationArguments(arguments), settings)
-    }
+    @Autowired
+    var settings = Settings()
+
+    protected fun realRunArgumentsAnd(arguments: Array<String>): Arguments =
+            Arguments(DefaultApplicationArguments(arrayOf(testSetDirectory.absolutePath) + arguments), settings)
+
+    protected fun dryRunArgumentsAnd(arguments: Array<String>): Arguments =
+            realRunArgumentsAnd(arguments + arrayOf("--dry"))
+
 }

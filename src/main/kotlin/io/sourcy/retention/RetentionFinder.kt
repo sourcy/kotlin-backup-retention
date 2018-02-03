@@ -1,13 +1,13 @@
 package io.sourcy.retention
 
-import org.slf4j.LoggerFactory
+import mu.KLogging
 import java.io.File
 
 class RetentionFinder(private val arguments: Arguments,
                       private val settings: Settings) {
-    private val log = LoggerFactory.getLogger(javaClass)
+    companion object : KLogging()
 
-    fun findMatchingFilesIn(directories: Iterable<File>): Sequence<File> =
+    fun findMatchingFilesIn(directories: Iterable<File>): List<File> =
             directories.asSequence()
                     .filter(File::exists)
                     .map(File::getAbsoluteFile)
@@ -16,12 +16,13 @@ class RetentionFinder(private val arguments: Arguments,
                     .filter(File::isFile)
                     .filter(::matchesDateRegex)
                     .filter(::matchesAnyFileNameRegex)
+                    .toList()
 
     private fun matchesDateRegex(file: File): Boolean =
             matchesRegex(file, settings.dateRegex())
 
     private fun matchesAnyFileNameRegex(file: File): Boolean =
-        settings.files.fileNameRegexes().any { matchesRegex(file, it) }
+            settings.files.fileNameRegexes().any { matchesRegex(file, it) }
 
     private fun matchesRegex(file: File, regex: Regex): Boolean =
             file.absolutePath.matches(regex)
@@ -29,7 +30,7 @@ class RetentionFinder(private val arguments: Arguments,
 
     private fun logRegexCheck(file: File, regex: Regex, it: Boolean) {
         if (arguments.verbose) {
-            log.info("Checking File: ${file.absolutePath} for regex: ${regex.pattern}. Result: $it")
+            logger.info { "Checking File: ${file.absolutePath} for regex: ${regex.pattern}. Result: $it" }
         }
     }
 }

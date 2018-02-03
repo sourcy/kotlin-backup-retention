@@ -138,6 +138,9 @@ class ArgumentsTest : AbstractBaseTest() {
                 .isThrownBy { testArguments(arrayOf()) }
     }
 
+    private fun testArguments(arguments: Array<String>): Arguments =
+            Arguments(DefaultApplicationArguments(arguments), settings)
+
     private fun expectedDirs(dirNames: Array<String>) =
             dirNames.map { File(it).absoluteFile.normalize() }
 }

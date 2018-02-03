@@ -1,15 +1,15 @@
 package io.sourcy.retention
 
-import org.slf4j.LoggerFactory
+import mu.KLogging
 import java.io.File
 
 // TODO: verbose logging
 class RetentionRunner(private val arguments: Arguments) {
-    private val log = LoggerFactory.getLogger(javaClass)
+    companion object: KLogging()
 
-    fun run(retentionInfos: Sequence<RetentionInfo>) : Sequence<RetentionResult> =
+    fun run(retentionInfos: Iterable<RetentionInfo>) : List<RetentionResult> =
             if (arguments.dryRun) {
-                emptySequence()
+                emptyList()
             } else {
                 // TODO: check for maxDelete & force argument
                 retentionInfos.map(::runSingle)

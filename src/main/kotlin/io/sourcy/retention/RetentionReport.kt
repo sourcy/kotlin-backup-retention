@@ -1,16 +1,16 @@
 package io.sourcy.retention
 
-import org.slf4j.LoggerFactory
+import mu.KLogging
 
 // TODO: verbose logging
 class RetentionReport(private val arguments: Arguments) {
-    private val log = LoggerFactory.getLogger(javaClass)
+    companion object : KLogging()
 
-    fun printInfo(retentionInfo: Sequence<RetentionInfo>) {
+    fun printInfo(retentionInfo: Iterable<RetentionInfo>) {
 
     }
 
-    fun printResult(retentionInfo: Sequence<RetentionResult>) {
+    fun printResult(retentionInfo: Iterable<RetentionResult>) {
 
     }
 }

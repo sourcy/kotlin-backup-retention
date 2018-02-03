@@ -1,17 +1,16 @@
 package io.sourcy.retention
 
-import org.slf4j.LoggerFactory
+import mu.KLogging
 
-class Retention(private val settings: Settings,
-                private val arguments: Arguments) {
-
-    private val log = LoggerFactory.getLogger(javaClass)
+class Retention(private val arguments: Arguments,
+                private val settings: Settings) {
+    companion object : KLogging()
 
     fun run() {
-        log.info("Starting to delete old backups.")
+        logger.info { "Starting retention." }
         if (arguments.verbose) {
-            log.info("Settings: $settings")
-            log.info("Arguments: $arguments")
+            logger.info { "Settings: $settings" }
+            logger.info { "Arguments: $arguments" }
         }
 
         val retentionFinder = RetentionFinder(arguments, settings)
@@ -26,6 +25,6 @@ class Retention(private val settings: Settings,
                 .let(retentionRunner::run)
                 .also(retentionReport::printResult)
 
-        log.info("Deleting old backups finished.")
+        logger.info { "Finished retention." }
     }
 }
