@@ -4,14 +4,17 @@ import org.slf4j.LoggerFactory
 
 class Retention(private val settings: Settings,
                 private val arguments: Arguments) {
-    private val log = LoggerFactory.getLogger(Retention::class.java)
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     fun run() {
         log.info("Starting to delete old backups.")
-        log.info("Settings: $settings")
-        log.info("Arguments: $arguments")
+        if (arguments.verbose) {
+            log.info("Settings: $settings")
+            log.info("Arguments: $arguments")
+        }
 
-        val retentionFinder = RetentionFinder(settings)
+        val retentionFinder = RetentionFinder(arguments, settings)
         val retentionLogic = RetentionLogic(arguments, settings)
         val retentionReport = RetentionReport(arguments)
         val retentionRunner = RetentionRunner(arguments)
@@ -22,5 +25,7 @@ class Retention(private val settings: Settings,
                 .also(retentionReport::printInfo)
                 .let(retentionRunner::run)
                 .also(retentionReport::printResult)
+
+        log.info("Deleting old backups finished.")
     }
 }

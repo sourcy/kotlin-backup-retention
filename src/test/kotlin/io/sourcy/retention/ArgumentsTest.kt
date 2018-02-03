@@ -124,11 +124,11 @@ class ArgumentsTest : AbstractBaseTest() {
     @Test
     fun processDirectoryOnlyOnce() {
         val dirNames = arrayOf("./src", "src", "./src/test/../../src")
-        val expectedDir = File("./src").absoluteFile.normalize()
+        val expectedDirNames = arrayOf("./src")
         val args = testArguments(dirNames)
         assertThat(args.directories)
                 .hasSize(1)
-                .containsExactly(expectedDir)
+                .containsExactlyElementsOf(expectedDirs(expectedDirNames))
                 .allMatch(File::exists)
     }
 
@@ -136,10 +136,6 @@ class ArgumentsTest : AbstractBaseTest() {
     fun failsForNoDirectory() {
         assertThatExceptionOfType(IllegalArgumentException::class.java)
                 .isThrownBy { testArguments(arrayOf()) }
-    }
-
-    private fun testArguments(arguments: Array<String>): Arguments {
-        return Arguments(DefaultApplicationArguments(arguments), settings)
     }
 
     private fun expectedDirs(dirNames: Array<String>) =

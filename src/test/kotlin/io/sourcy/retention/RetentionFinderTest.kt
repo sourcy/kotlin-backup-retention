@@ -41,7 +41,8 @@ class RetentionFinderTest : AbstractBaseTest() {
 
     private fun assertMatchingFilesIn(patterns: List<String>, directories: List<File>): ListAssert<File> {
         val regexTestSettings = settingsWith(patterns)
-        val retentionDirectories = RetentionFinder(regexTestSettings)
+        val testArguments = testArguments(arrayOf("."))
+        val retentionDirectories = RetentionFinder(testArguments, regexTestSettings)
         return assertThat(retentionDirectories.findMatchingFilesIn(directories).toList())
     }
 

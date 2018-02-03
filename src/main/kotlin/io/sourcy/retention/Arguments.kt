@@ -13,7 +13,7 @@ data class Arguments(private val args: ApplicationArguments,
                      val theDate: LocalDate = fakeDateOrNow(args, settings),
                      val directories: List<File> = directories(args)) {
     companion object {
-        private val log = LoggerFactory.getLogger(RetentionApplication::class.java)
+        private val log = LoggerFactory.getLogger(Arguments::class.java)
         private const val fakeDateArgumentName = "fake-date"
         private const val forceArgumentName = "force"
         private const val dryArgumentName = "dry"
@@ -36,12 +36,17 @@ data class Arguments(private val args: ApplicationArguments,
                         ?.let { parseDate(it, settings) }
 
         private fun directories(args: ApplicationArguments): List<File> =
-                if (args.nonOptionArgs == null || args.nonOptionArgs.size == 0) {
-                    log.error("No directories specified.")
-                    throw IllegalArgumentException("No directories specified.")
-                } else {
-                    args.nonOptionArgs.map(::toNormalizedFile).distinct()
-                }
+                args.nonOptionArgs.orEmpty()
+                        .map(::toNormalizedFile)
+                        .distinct()
+                        .also (::assertNotEmpty)
+
+        private fun assertNotEmpty(it: List<File>) {
+            if (it.isEmpty()) {
+                log.error("No directories specified.")
+                throw IllegalArgumentException("No directories specified.")
+            }
+        }
 
         private fun toNormalizedFile(fileName: String?): File =
                 File(fileName).absoluteFile.normalize()
