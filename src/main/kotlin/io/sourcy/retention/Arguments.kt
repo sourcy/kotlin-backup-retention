@@ -13,41 +13,45 @@ data class Arguments(private val args: ApplicationArguments,
                      val theDate: LocalDate = fakeDateOrNow(args, settings),
                      val directories: List<File> = directories(args)) {
     companion object {
-        private val log = LoggerFactory.getLogger(RetentionRunner::class.java)
+        private val log = LoggerFactory.getLogger(RetentionApplication::class.java)
+        private const val fakeDateArgumentName = "fake-date"
+        private const val forceArgumentName = "force"
+        private const val dryArgumentName = "dry"
+        private const val verboseArgumentName = "verbose"
 
-        private fun useTheForce(args: ApplicationArguments) =
-                args.containsOption("force")
+        private fun useTheForce(args: ApplicationArguments): Boolean =
+                args.containsOption(forceArgumentName)
 
-        private fun dryRun(args: ApplicationArguments) =
-                args.containsOption("dry")
+        private fun dryRun(args: ApplicationArguments): Boolean =
+                args.containsOption(dryArgumentName)
 
-        private fun verbose(args: ApplicationArguments) =
-                args.containsOption("verbose")
+        private fun verbose(args: ApplicationArguments): Boolean =
+                args.containsOption(verboseArgumentName)
 
         private fun fakeDateOrNow(args: ApplicationArguments, settings: Settings): LocalDate =
                 fakeDate(args, settings) ?: LocalDate.now()
 
         private fun fakeDate(args: ApplicationArguments, settings: Settings): LocalDate? =
-                if (args.containsOption("fake-date")) {
-                    args.getOptionValues("fake-date")?.first()?.let { parseDate(it, settings) }
-                } else {
-                    null
-                }
+                args.getOptionValues(fakeDateArgumentName)?.first()
+                        ?.let { parseDate(it, settings) }
 
-        private fun parseDate(it: String?, settings: Settings) =
-                try {
-                    LocalDate.parse(it, settings.dateFormatter())
-                } catch (e: Exception) {
-                    log.error("Unable to parse fake date. Please provide date in format (${settings.dateFormat}).")
-                    throw e
-                }
-
-        private fun directories(args: ApplicationArguments) =
+        private fun directories(args: ApplicationArguments): List<File> =
                 if (args.nonOptionArgs == null || args.nonOptionArgs.size == 0) {
                     log.error("No directories specified.")
                     throw IllegalArgumentException("No directories specified.")
                 } else {
-                    args.nonOptionArgs.map { File(it).absoluteFile.normalize() }.distinct()
+                    args.nonOptionArgs.map(::toNormalizedFile).distinct()
+                }
+
+        private fun toNormalizedFile(fileName: String?): File =
+                File(fileName).absoluteFile.normalize()
+
+        private fun parseDate(dateString: String?, settings: Settings): LocalDate =
+                try {
+                    LocalDate.parse(dateString, settings.dateFormatter())
+                } catch (e: Exception) {
+                    log.error("Unable to parse fake date. Please provide date in format (${settings.dateFormat}).")
+                    throw e
                 }
     }
 }

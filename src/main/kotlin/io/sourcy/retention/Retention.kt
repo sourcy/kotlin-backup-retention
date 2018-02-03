@@ -14,13 +14,13 @@ class Retention(private val settings: Settings,
         val retentionFinder = RetentionFinder(settings)
         val retentionLogic = RetentionLogic(arguments, settings)
         val retentionReport = RetentionReport(arguments)
-        val retentionExecutor = RetentionExecutor(arguments)
+        val retentionRunner = RetentionRunner(arguments)
 
         retentionFinder
-                .findMatchingFilesIn(arguments.directories.asSequence())
-                .map { retentionLogic.calculateRetentionInfo(it) }
-                .also { retentionReport.printInfo(it) }
-                .let { retentionExecutor.execute(it) }
-                .also { retentionReport.printResult(it) }
+                .findMatchingFilesIn(arguments.directories)
+                .map(retentionLogic::calculateRetentionInfo)
+                .also(retentionReport::printInfo)
+                .let(retentionRunner::run)
+                .also(retentionReport::printResult)
     }
 }

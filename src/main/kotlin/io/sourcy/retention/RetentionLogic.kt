@@ -4,13 +4,12 @@ import java.io.File
 
 class RetentionLogic(private val arguments: Arguments,
                      private val settings: Settings) {
-    fun calculateRetentionInfo(file: File) =
+    fun calculateRetentionInfo(file: File) : RetentionInfo =
             try {
                 RetentionInfo.Info(file, false, false, false, false)
             } catch (e: Exception) {
                 RetentionInfo.Error(file, e)
             }
-
 }
 
 sealed class RetentionInfo {

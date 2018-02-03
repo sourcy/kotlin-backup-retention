@@ -13,9 +13,9 @@ data class Settings(
         val weekly: WeeklyRetentionSettings = WeeklyRetentionSettings(),
         val monthly: MonthlyRetentionSettings = MonthlyRetentionSettings(),
         val files: FileSettings = FileSettings()) {
-    fun dateRegex() =
+    fun dateRegex(): Regex =
             Regex(dateRegexPattern)
-    fun dateFormatter() =
+    fun dateFormatter(): DateTimeFormatter =
             DateTimeFormatter.ofPattern(dateFormat)!!
 }
 
@@ -29,6 +29,6 @@ data class MonthlyRetentionSettings(var keep: Int = 36,
 
 data class FileSettings(var maxPercentDelete: Int = 10,
                         var fileNameRegexPatterns: List<String> = emptyList()) {
-    fun fileNameRegexes() =
-            fileNameRegexPatterns.map { Regex(it)}
+    fun fileNameRegexes(): List<Regex> =
+            fileNameRegexPatterns.map(::Regex)
 }

@@ -3,16 +3,17 @@ package io.sourcy.retention
 import java.io.File
 
 class RetentionFinder(private val settings: Settings) {
-    fun findMatchingFilesIn(directories: Sequence<File>) =
-            directories.filter { it.exists() }
-                    .flatMap { it.walkTopDown() }
-                    .filter { it.isFile }
-                    .filter { file -> matchesDateRegex(file) }
-                    .filter { file -> matchesAnyFileNameRegex(file) }
+    fun findMatchingFilesIn(directories: Iterable<File>): Sequence<File> =
+            directories.asSequence()
+                    .filter(File::exists)
+                    .flatMap(File::walkTopDown)
+                    .filter(File::isFile)
+                    .filter(::matchesDateRegex)
+                    .filter(::matchesAnyFileNameRegex)
 
-    private fun matchesDateRegex(file: File) =
+    private fun matchesDateRegex(file: File): Boolean =
             file.absolutePath.matches(settings.dateRegex())
 
-    private fun matchesAnyFileNameRegex(file: File) =
-            settings.files.fileNameRegexes().any { file.absolutePath.matches(it) }
+    private fun matchesAnyFileNameRegex(file: File): Boolean =
+            settings.files.fileNameRegexes().any(file.absolutePath::matches)
 }
