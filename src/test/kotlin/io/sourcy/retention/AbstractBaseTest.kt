@@ -18,7 +18,7 @@ abstract class AbstractBaseTest {
     var settings = Settings()
 
     protected fun realRunArgumentsAnd(arguments: Array<String>): Arguments =
-            Arguments(DefaultApplicationArguments(arrayOf(testSetDirectory.absolutePath) + arguments), settings)
+            Arguments(DefaultApplicationArguments(arrayOf("--fake-date=2018-01-18", testSetDirectory.absolutePath) + arguments), settings)
 
     protected fun dryRunArgumentsAnd(arguments: Array<String>): Arguments =
             realRunArgumentsAnd(arguments + arrayOf("--dry"))

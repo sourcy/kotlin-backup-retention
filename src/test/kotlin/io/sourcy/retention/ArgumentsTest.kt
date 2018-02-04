@@ -141,6 +141,6 @@ class ArgumentsTest : AbstractBaseTest() {
     private fun testArguments(arguments: Array<String>): Arguments =
             Arguments(DefaultApplicationArguments(arguments), settings)
 
-    private fun expectedDirs(dirNames: Array<String>) =
+    private fun expectedDirs(dirNames: Array<String>): List<File> =
             dirNames.map { File(it).absoluteFile.normalize() }
 }

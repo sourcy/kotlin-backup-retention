@@ -26,7 +26,7 @@ class SettingsTest : AbstractBaseTest() {
         assertThat(settings.files.fileNameRegexPatterns)
                 .hasSize(2)
                 .containsExactlyElementsOf(listOf(".*\\.foo\\.bar",".*\\.far"))
-        assertThat(settings.files.fileNameRegexes().map(Regex::pattern))
+        assertThat(settings.files.fileNameRegexps().map(Regex::pattern))
                 .hasSize(2)
                 .containsExactlyElementsOf(listOf(".*\\.foo\\.bar",".*\\.far"))
     }

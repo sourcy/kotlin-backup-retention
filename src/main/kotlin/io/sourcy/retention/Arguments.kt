@@ -32,7 +32,7 @@ data class Arguments(private val args: ApplicationArguments,
 
         private fun fakeDate(args: ApplicationArguments, settings: Settings): LocalDate? =
                 args.getOptionValues(fakeDateArgumentName)?.first()
-                        ?.let { parseDate(it, settings) }
+                        ?.let(settings::parseDate)
 
         private fun directories(args: ApplicationArguments): List<File> =
                 args.nonOptionArgs.orEmpty()
@@ -47,15 +47,7 @@ data class Arguments(private val args: ApplicationArguments,
             }
         }
 
-        private fun toNormalizedFile(fileName: String?): File =
+        private fun toNormalizedFile(fileName: String): File =
                 File(fileName).absoluteFile.normalize()
-
-        private fun parseDate(dateString: String?, settings: Settings): LocalDate =
-                try {
-                    LocalDate.parse(dateString, settings.dateFormatter())
-                } catch (e: Exception) {
-                    logger.error { "Unable to parse fake date. Please provide date in format (${settings.dateFormat})." }
-                    throw e
-                }
     }
 }

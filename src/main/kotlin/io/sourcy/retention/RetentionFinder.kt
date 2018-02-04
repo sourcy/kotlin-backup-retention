@@ -22,7 +22,7 @@ class RetentionFinder(private val arguments: Arguments,
             matchesRegex(file, settings.dateRegex())
 
     private fun matchesAnyFileNameRegex(file: File): Boolean =
-            settings.files.fileNameRegexes().any { matchesRegex(file, it) }
+            settings.files.fileNameRegexps().any { matchesRegex(file, it) }
 
     private fun matchesRegex(file: File, regex: Regex): Boolean =
             file.absolutePath.matches(regex)
