@@ -3,11 +3,13 @@ package io.sourcy.retention
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import sun.plugin.dom.exception.InvalidStateException
 import java.io.File
+import java.time.format.DateTimeParseException
 
 class RetentionLogicTest : AbstractBaseTest() {
 
-    private val retentionLogic = RetentionLogic(dryTestRunArgumentsAnd(emptyArray()), settings)
+    private val retentionLogic = RetentionLogic(dryTestRunArgumentsAnd(emptyArray()), testSettings)
 
     @Test
     fun testKeepCurrentDaily() {
@@ -96,9 +98,32 @@ class RetentionLogicTest : AbstractBaseTest() {
                 .matches { it.isDaily && !it.isWeekly && !it.isMonthly && it.isExpired }
     }
 
+    @Test
+    fun testInvalidDate() {
+        // first day of month and sunday
+        val result = retentionLogic.calculateRetentionInfo(File("some_2017-10-99_05-07-59.tar.gz"))
+        assertThatRetentionError(result)
+                .isInstanceOf(DateTimeParseException::class.java)
+    }
+
+    @Test
+    fun testNoDate() {
+        // first day of month and sunday
+        val result = retentionLogic.calculateRetentionInfo(File("some.tar.gz"))
+        assertThatRetentionError(result)
+                .isInstanceOf(DateTimeParseException::class.java)
+    }
+
     private fun assertThatRetentionInfo(result: RetentionInfo): AbstractObjectAssert<*, RetentionInfo.Info> =
             when (result) {
                 is RetentionInfo.Info -> assertThat(result)
-                is RetentionInfo.Error -> throw result.exception
+                is RetentionInfo.Error -> throw InvalidStateException("RetentionInfo.Error $result instead of RetentionInfo.Info")
             }
+
+    private fun assertThatRetentionError(result: RetentionInfo): AbstractObjectAssert<*, out Throwable> =
+            when (result) {
+                is RetentionInfo.Error -> assertThat(result.exception)
+                is RetentionInfo.Info -> throw InvalidStateException("RetentionInfo.Info $result instead of RetentionInfo.Error")
+            }
+
 }

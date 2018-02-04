@@ -10,23 +10,23 @@ import java.time.DayOfWeek.WEDNESDAY
 class SettingsTest : AbstractBaseTest() {
     @Test
     fun loadsSettingsFromProperties() {
-        assertThat(settings.dateRegexPattern).isEqualTo(".*_(\\d{8})_.*")
-        assertThat(settings.dateRegex().pattern).isEqualTo(".*_(\\d{8})_.*")
-        assertThat(settings.dateFormat).isEqualTo("uuuuMMdd")
-        assertThat(settings.dateFormatter().format(LocalDate.of(2017, 2, 15)))
+        assertThat(testSettings.dateRegexPattern).isEqualTo(".*_(\\d{8})_.*")
+        assertThat(testSettings.dateRegex().pattern).isEqualTo(".*_(\\d{8})_.*")
+        assertThat(testSettings.dateFormat).isEqualTo("uuuuMMdd")
+        assertThat(testSettings.dateFormatter().format(LocalDate.of(2017, 2, 15)))
                 .isEqualTo("20170215")
 
-        assertThat(settings.daily.keep).isEqualTo(1337)
-        assertThat(settings.weekly.keep).isEqualTo(1337)
-        assertThat(settings.weekly.dayOfWeek).isEqualTo(WEDNESDAY)
-        assertThat(settings.monthly.keep).isEqualTo(1337)
-        assertThat(settings.monthly.dayOfMonth).isEqualTo(15)
+        assertThat(testSettings.daily.keep).isEqualTo(1337)
+        assertThat(testSettings.weekly.keep).isEqualTo(1337)
+        assertThat(testSettings.weekly.dayOfWeek).isEqualTo(WEDNESDAY)
+        assertThat(testSettings.monthly.keep).isEqualTo(1337)
+        assertThat(testSettings.monthly.dayOfMonth).isEqualTo(15)
 
-        assertThat(settings.files.maxPercentDelete).isEqualTo(1337)
-        assertThat(settings.files.fileNameRegexPatterns)
+        assertThat(testSettings.files.maxPercentDelete).isEqualTo(1337)
+        assertThat(testSettings.files.fileNameRegexPatterns)
                 .hasSize(2)
                 .containsExactlyElementsOf(listOf(".*\\.foo\\.bar",".*\\.far"))
-        assertThat(settings.files.fileNameRegexps().map(Regex::pattern))
+        assertThat(testSettings.files.fileNameRegexps().map(Regex::pattern))
                 .hasSize(2)
                 .containsExactlyElementsOf(listOf(".*\\.foo\\.bar",".*\\.far"))
     }

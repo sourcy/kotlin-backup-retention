@@ -15,11 +15,11 @@ abstract class AbstractBaseTest {
     val testSetDirectory = File("./src/test/resources/testset")
 
     @Autowired
-    var settings = Settings()
+    var testSettings = Settings()
 
 
     protected fun customArguments(arguments: Array<String>): Arguments =
-            Arguments(DefaultApplicationArguments(arguments), settings)
+            Arguments(DefaultApplicationArguments(arguments), testSettings)
 
     protected fun testRunArgumentsAnd(arguments: Array<String>): Arguments =
             customArguments(arrayOf("--fake-date=2018-01-18", testSetDirectory.absolutePath) + arguments)

@@ -46,10 +46,10 @@ class RetentionFinderTest : AbstractBaseTest() {
     }
 
     private fun assertThatMatchingFiles(patterns: List<String>, directories: List<File>): ListAssert<File> {
-        val retentionDirectories = RetentionFinder(dryTestRunArgumentsAnd(emptyArray()), settingsWith(patterns))
+        val retentionDirectories = RetentionFinder(dryTestRunArgumentsAnd(emptyArray()), testSettingsWith(patterns))
         return assertThat(retentionDirectories.findMatchingFilesIn(directories).toList())
     }
 
-    private fun settingsWith(patterns: List<String>) =
-            settings.copy(files = settings.files.copy(fileNameRegexPatterns = patterns))
+    private fun testSettingsWith(patterns: List<String>) =
+            testSettings.copy(files = testSettings.files.copy(fileNameRegexPatterns = patterns))
 }
