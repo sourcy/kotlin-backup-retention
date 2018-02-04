@@ -7,7 +7,7 @@ import java.io.File
 
 class RetentionLogicTest : AbstractBaseTest() {
 
-    private val retentionLogic = RetentionLogic(dryRunArgumentsAnd(emptyArray()), settings)
+    private val retentionLogic = RetentionLogic(dryTestRunArgumentsAnd(emptyArray()), settings)
 
     @Test
     fun testKeepCurrentDaily() {
@@ -59,7 +59,7 @@ class RetentionLogicTest : AbstractBaseTest() {
     }
 
     @Test
-    fun testKeepThirtySevenMonthlies() {
+    fun testKeepThirtySixMonthlies() {
         val result = retentionLogic.calculateRetentionInfo(File("some_2015-02-01_05-07-59.tar.gz"))
         assertThatRetentionInfo(result)
                 .matches { it.isMonthly && !it.isExpired }
@@ -67,7 +67,7 @@ class RetentionLogicTest : AbstractBaseTest() {
 
     @Test
     fun testExpireThirtySeventhMonthly() {
-        val result = retentionLogic.calculateRetentionInfo(File("some_2015-01-19_05-07-59.tar.gz"))
+        val result = retentionLogic.calculateRetentionInfo(File("some_2015-01-01_05-07-59.tar.gz"))
         assertThatRetentionInfo(result)
                 .matches { it.isMonthly && it.isExpired }
     }

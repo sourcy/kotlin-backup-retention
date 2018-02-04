@@ -17,10 +17,14 @@ abstract class AbstractBaseTest {
     @Autowired
     var settings = Settings()
 
-    protected fun realRunArgumentsAnd(arguments: Array<String>): Arguments =
-            Arguments(DefaultApplicationArguments(arrayOf("--fake-date=2018-01-18", testSetDirectory.absolutePath) + arguments), settings)
 
-    protected fun dryRunArgumentsAnd(arguments: Array<String>): Arguments =
-            realRunArgumentsAnd(arguments + arrayOf("--dry"))
+    protected fun customArguments(arguments: Array<String>): Arguments =
+            Arguments(DefaultApplicationArguments(arguments), settings)
+
+    protected fun testRunArgumentsAnd(arguments: Array<String>): Arguments =
+            customArguments(arrayOf("--fake-date=2018-01-18", testSetDirectory.absolutePath) + arguments)
+
+    protected fun dryTestRunArgumentsAnd(arguments: Array<String>): Arguments =
+            testRunArgumentsAnd(arguments + arrayOf("--dry"))
 
 }
