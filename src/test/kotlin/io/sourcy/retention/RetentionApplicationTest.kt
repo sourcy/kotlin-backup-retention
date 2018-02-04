@@ -2,10 +2,8 @@ package io.sourcy.retention
 
 import org.assertj.core.api.Assertions
 import org.junit.Test
-import org.springframework.test.context.TestPropertySource
 import java.time.format.DateTimeParseException
 
-@TestPropertySource(locations = ["classpath:test.properties"])
 class RetentionApplicationTest : AbstractBaseTest() {
     @Test
     fun executesSuccessfullyDry() {
