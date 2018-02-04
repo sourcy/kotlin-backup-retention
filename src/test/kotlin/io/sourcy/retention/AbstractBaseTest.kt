@@ -1,14 +1,14 @@
 package io.sourcy.retention
 
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.DefaultApplicationArguments
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.test.context.TestPropertySource
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 
-@RunWith(SpringJUnit4ClassRunner::class)
+@ExtendWith(SpringExtension::class)
 @TestPropertySource(locations = ["classpath:test.properties"])
 @EnableConfigurationProperties(Settings::class)
 abstract class AbstractBaseTest {

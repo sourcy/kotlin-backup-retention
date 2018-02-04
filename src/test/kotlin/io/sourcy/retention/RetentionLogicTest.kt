@@ -2,7 +2,7 @@ package io.sourcy.retention
 
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class RetentionLogicTest : AbstractBaseTest() {

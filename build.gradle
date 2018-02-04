@@ -1,7 +1,11 @@
 buildscript {
 	ext {
 		kotlinVersion = '1.2.21'
+		kotlinLoggingVersion = '1.4.9'
 		springBootVersion = '2.0.0.RC1'
+		junitPlatformVersion = '1.0.3'
+        junitVersion = '5.0.3'
+		assertJVersion = '3.9.0'
 	}
 	repositories {
 		mavenCentral()
@@ -12,6 +16,7 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+		classpath("org.junit.platform:junit-platform-gradle-plugin:${junitPlatformVersion}")
 	}
 }
 
@@ -20,6 +25,7 @@ apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 group = 'io.sourcy'
 version = '0.0.1-SNAPSHOT'
@@ -42,7 +48,11 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-configuration-processor")
 	compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
 	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
-	compile("io.github.microutils:kotlin-logging:1.4.9")
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.assertj:assertj-core:3.9.0')
+	compile("io.github.microutils:kotlin-logging:${kotlinLoggingVersion}")
+    testCompile("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+	testCompile("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: 'junit'
+    }
+    testCompile("org.assertj:assertj-core:${assertJVersion}")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }

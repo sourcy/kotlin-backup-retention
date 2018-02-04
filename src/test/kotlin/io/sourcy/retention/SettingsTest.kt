@@ -1,7 +1,7 @@
 package io.sourcy.retention
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.test.context.TestPropertySource
 import java.time.LocalDate
 import java.time.DayOfWeek.WEDNESDAY

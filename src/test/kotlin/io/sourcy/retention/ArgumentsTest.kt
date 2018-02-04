@@ -2,7 +2,7 @@ package io.sourcy.retention
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.boot.DefaultApplicationArguments
 import java.io.File
 import java.time.LocalDate
