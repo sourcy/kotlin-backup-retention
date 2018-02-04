@@ -1,29 +1,35 @@
 package io.sourcy.retention
 
+import arrow.core.Either
+import arrow.syntax.either.left
+import arrow.syntax.either.right
 import mu.KLogging
 import java.io.File
 import java.time.LocalDate
 
 
-// TODO: verbose logging
 class RetentionLogic(private val arguments: Arguments,
                      private val settings: Settings) {
     companion object : KLogging()
 
-    fun calculateRetentionInfo(file: File): RetentionInfo =
+    fun calculateRetentionInfo(file: File): Either<Error, Info> =
             try {
-                file.let(::toRetentionInfo)
+                file.let(::toRetentionInfo).right()
             } catch (e: Exception) {
-                RetentionInfo.Error(file, e)
+                Error(file, e).left()
             }
 
-    private fun toRetentionInfo(file: File): RetentionInfo {
+    private fun toRetentionInfo(file: File): Info {
         val fileDate = extractLocalDate(file)
-        return RetentionInfo.Info(file,
+        val info = Info(file,
                 true,
                 isWeekly(fileDate),
                 isMonthly(fileDate),
                 isExpired(fileDate))
+        if (arguments.verbose) {
+            logger.info { info }
+        }
+        return info
     }
 
     private fun extractLocalDate(file: File): LocalDate =
@@ -51,15 +57,13 @@ class RetentionLogic(private val arguments: Arguments,
 
     private fun keepMonthly(fileDate: LocalDate): Boolean =
             isMonthly(fileDate) && fileDate.isAfter(arguments.theDate.minusMonths(settings.monthly.keep))
-}
 
-sealed class RetentionInfo {
-    class Info(val file: File,
+    data class Info(val file: File,
                val isDaily: Boolean,
                val isWeekly: Boolean,
                val isMonthly: Boolean,
-               val isExpired: Boolean) : RetentionInfo()
+               val isExpired: Boolean)
 
-    class Error(val file: File,
-                val exception: Exception) : RetentionInfo()
+    data class Error(val file: File,
+                val exception: Exception)
 }

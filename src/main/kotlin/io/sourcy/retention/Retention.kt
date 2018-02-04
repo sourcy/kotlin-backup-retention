@@ -15,15 +15,12 @@ class Retention(private val arguments: Arguments,
 
         val retentionFinder = RetentionFinder(arguments, settings)
         val retentionLogic = RetentionLogic(arguments, settings)
-        val retentionReport = RetentionReport(arguments)
         val retentionRunner = RetentionRunner(arguments)
 
         retentionFinder
                 .findMatchingFilesIn(arguments.directories)
                 .map(retentionLogic::calculateRetentionInfo)
-                .also(retentionReport::printInfo)
                 .let(retentionRunner::run)
-                .also(retentionReport::printResult)
 
         logger.info { "Finished retention." }
     }

@@ -1,13 +1,16 @@
 package io.sourcy.retention
 
+import arrow.core.Either
+import arrow.core.flatMap
+import arrow.syntax.either.left
+import arrow.syntax.either.right
 import mu.KLogging
-import java.io.File
 
 // TODO: verbose logging
 class RetentionRunner(private val arguments: Arguments) {
-    companion object: KLogging()
+    companion object : KLogging()
 
-    fun run(retentionInfos: Iterable<RetentionInfo>) : List<RetentionResult> =
+    fun run(retentionInfos: Iterable<Either<RetentionLogic.Error, RetentionLogic.Info>>): List<Either<Error, Result>> =
             if (arguments.dryRun) {
                 emptyList()
             } else {
@@ -15,26 +18,24 @@ class RetentionRunner(private val arguments: Arguments) {
                 retentionInfos.map(::runSingle)
             }
 
-    private fun runSingle(retentionInfo: RetentionInfo): RetentionResult =
-            when (retentionInfo) {
-                is RetentionInfo.Info ->
-                    executeRetention(retentionInfo)
-                is RetentionInfo.Error ->
-                    RetentionResult.Error(retentionInfo.file, retentionInfo.exception)
-            }
+    private fun runSingle(retentionInfo: Either<RetentionLogic.Error, RetentionLogic.Info>): Either<Error, Result> =
+            retentionInfo
+                    .mapLeft(::convertError)
+                    .flatMap (::executeRetention)
 
-    private fun executeRetention(retentionInfo: RetentionInfo.Info): RetentionResult =
+    private fun convertError(error: RetentionLogic.Error): Error =
+            Error(error.left(), error.exception)
+
+    private fun executeRetention(retentionInfo: RetentionLogic.Info): Either<Error, Result> =
             try {
-                RetentionResult.Result(retentionInfo.file, false)
+                Result(retentionInfo, false).right()
             } catch (e: Exception) {
-                RetentionResult.Error(retentionInfo.file, e)
+                Error(retentionInfo.right(), e).left()
             }
-}
 
-sealed class RetentionResult {
-    class Result(val file: File,
-                 val wasDeleted: Boolean) : RetentionResult()
+    data class Result(val sourceInfo: RetentionLogic.Info,
+                      val wasDeleted: Boolean)
 
-    class Error(val file: File,
-                val exception: Exception) : RetentionResult()
+    data class Error(val sourceInfo: Either<RetentionLogic.Error, RetentionLogic.Info>,
+                     val exception: Exception)
 }

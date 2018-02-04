@@ -1,8 +1,11 @@
 package io.sourcy.retention
 
+import arrow.core.Either
+import arrow.core.getOrElse
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.opentest4j.TestAbortedException
 import sun.plugin.dom.exception.InvalidStateException
 import java.io.File
 import java.time.format.DateTimeParseException
@@ -114,16 +117,21 @@ class RetentionLogicTest : AbstractBaseTest() {
                 .isInstanceOf(DateTimeParseException::class.java)
     }
 
-    private fun assertThatRetentionInfo(result: RetentionInfo): AbstractObjectAssert<*, RetentionInfo.Info> =
-            when (result) {
-                is RetentionInfo.Info -> assertThat(result)
-                is RetentionInfo.Error -> throw InvalidStateException("RetentionInfo.Error $result instead of RetentionInfo.Info")
-            }
+    private fun assertThatRetentionInfo(result: Either<RetentionLogic.Error, RetentionLogic.Info>): AbstractObjectAssert<*, RetentionLogic.Info> =
+            assertThat(assertInfo(result))
 
-    private fun assertThatRetentionError(result: RetentionInfo): AbstractObjectAssert<*, out Throwable> =
-            when (result) {
-                is RetentionInfo.Error -> assertThat(result.exception)
-                is RetentionInfo.Info -> throw InvalidStateException("RetentionInfo.Info $result instead of RetentionInfo.Error")
-            }
+    private fun assertInfo(result: Either<RetentionLogic.Error, RetentionLogic.Info>): RetentionLogic.Info {
+        return result.getOrElse {
+            throw TestAbortedException("RetentionInfo.Error $result instead of RetentionInfo.Info")
+        }
+    }
 
+    private fun assertThatRetentionError(result: Either<RetentionLogic.Error, RetentionLogic.Info>): AbstractObjectAssert<*, out Throwable> =
+            assertThat(assertError(result).exception)
+
+    private fun assertError(result: Either<RetentionLogic.Error, RetentionLogic.Info>): RetentionLogic.Error {
+        return result.swap().getOrElse {
+            throw TestAbortedException("RetentionInfo.Info $result instead of RetentionInfo.Error")
+        }
+    }
 }
