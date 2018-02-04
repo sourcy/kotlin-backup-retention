@@ -1,5 +1,7 @@
 package io.sourcy.retention
 
+import arrow.data.Try
+import arrow.data.getOrElse
 import mu.KLogging
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.time.DayOfWeek
@@ -19,15 +21,16 @@ data class Settings(
 
     fun dateRegex(): Regex =
             Regex(dateRegexPattern)
+
     fun dateFormatter(): DateTimeFormatter =
             DateTimeFormatter.ofPattern(dateFormat)!!
+
     fun parseDate(dateString: String): LocalDate =
-            try {
-                LocalDate.parse(dateString, dateFormatter())
-            } catch (e: Exception) {
-                logger.error { "Unable to parse fake date. Please provide date in format ($dateFormat)." }
-                throw e
-            }
+            Try { LocalDate.parse(dateString, dateFormatter()) }
+                    .getOrElse {
+                        logger.error { "Unable to parse $dateString. Please provide date in format ($dateFormat)." }
+                        throw it
+                    }
 }
 
 data class DailyRetentionSettings(var keep: Long = 7)

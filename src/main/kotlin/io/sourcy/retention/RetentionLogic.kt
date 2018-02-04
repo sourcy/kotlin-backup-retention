@@ -1,8 +1,7 @@
 package io.sourcy.retention
 
 import arrow.core.Either
-import arrow.syntax.either.left
-import arrow.syntax.either.right
+import arrow.data.Try
 import mu.KLogging
 import java.io.File
 import java.time.LocalDate
@@ -13,11 +12,9 @@ class RetentionLogic(private val arguments: Arguments,
     companion object : KLogging()
 
     fun calculateRetentionInfo(file: File): Either<Error, Info> =
-            try {
-                file.let(::toRetentionInfo).right()
-            } catch (e: Exception) {
-                Error(file, e).left()
-            }
+            Try { file.let(::toRetentionInfo) }
+                    .toEither()
+                    .mapLeft { Error(file, it) }
 
     private fun toRetentionInfo(file: File): Info {
         val fileDate = extractLocalDate(file)
@@ -65,5 +62,5 @@ class RetentionLogic(private val arguments: Arguments,
                val isExpired: Boolean)
 
     data class Error(val file: File,
-                val exception: Exception)
+                val exception: Throwable)
 }
