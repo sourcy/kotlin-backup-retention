@@ -1,14 +1,10 @@
 package io.sourcy.retention
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.data.Try
-import arrow.syntax.either.left
-import arrow.syntax.either.right
 import mu.KLogging
 import kotlin.math.roundToInt
 
-// TODO: verbose logging
 class RetentionRunner(private val arguments: Arguments,
                       private val settings: Settings) {
     companion object : KLogging()
@@ -23,47 +19,88 @@ class RetentionRunner(private val arguments: Arguments,
 
         requireForceIfMaxPercentageExceeded(percentageToDelete)
 
+        val result = runAllMaybe(retentionInfos)
+
+        logResult(result)
+
+        return result
+    }
+
+    private fun runAllMaybe(retentionInfos: Iterable<Either<RetentionLogic.Error, RetentionLogic.Info>>): List<Either<Error, Result>> {
         return if (arguments.dryRun) {
             logger.info("Dry Run. Doing nothing.")
             emptyList()
         } else {
-            retentionInfos.map(::runSingle)
+            retentionInfos.flatMap(::runSingleMaybe)
         }
     }
 
-    private fun runSingle(retentionInfo: Either<RetentionLogic.Error, RetentionLogic.Info>): Either<Error, Result> =
-            retentionInfo
-                    .mapLeft(::convertError)
-                    .flatMap(::executeRetention)
+    private fun runSingleMaybe(it: Either<RetentionLogic.Error, RetentionLogic.Info>) =
+            it.toOption().toList().map(::runSingle)
 
-    private fun convertError(error: RetentionLogic.Error): Error =
-            Error(error.left(), error.exception)
-
-    private fun executeRetention(retentionInfo: RetentionLogic.Info): Either<Error, Result> =
+    private fun runSingle(retentionInfo: RetentionLogic.Info): Either<Error, Result> =
             Try { Result(retentionInfo, false) }
                     .toEither()
-                    .mapLeft { Error(retentionInfo.right(), it) }
+                    .mapLeft { Error(retentionInfo, it) }
 
     private fun logSummary(errors: List<RetentionLogic.Error>, files: List<RetentionLogic.Info>, expired: List<RetentionLogic.Info>, percentageToDelete: Int) {
         logger.info {
             """
               |
               |----------------------------------------------------------------------------------------------------
-              |Pre-Run Summary:
+              |File-Lookup Summary:
               |----------------------------------------------------------------------------------------------------
-              |Number or Errors: ${errors.size}
-              |Number of Files: ${files.size}
-              |Number of Files to delete: ${expired.size}
-              |Percentage to delete: $percentageToDelete
+              |Number of errors: ${errors.size}
+              |Number of files: ${files.size}
+              |Number of files to delete: ${expired.size}
+              |Percentage of files to delete: $percentageToDelete
               |----------------------------------------------------------------------------------------------------
               |Errors (${errors.size}):
               |----------------------------------------------------------------------------------------------------
-              |${errors.joinToString("\n") { """File: ${it.file.absolutePath}""" }
-                    .zip(errors.joinToString("\n") { """Error: ${it.exception.message}""" })}
+              |${errors.map { "File: ${it.file.absolutePath}\nError: ${it.exception.message}" }
+                    .joinToString("\n")}
               |----------------------------------------------------------------------------------------------------
-              |Files to delete (${expired.size}):
+              |Files identified for deletion (${expired.size}):
               |----------------------------------------------------------------------------------------------------
               |${expired.joinToString("\n") { it.file.absolutePath }}
+              |----------------------------------------------------------------------------------------------------
+            """.trimMargin()
+        }
+        if (arguments.verbose) {
+            logger.info {
+                """
+              |
+              |----------------------------------------------------------------------------------------------------
+              |Retention info for all files (${files.size}):
+              |----------------------------------------------------------------------------------------------------
+              |${files.joinToString("\n")}
+              |----------------------------------------------------------------------------------------------------
+            """.trimMargin()
+            }
+        }
+    }
+
+    private fun logResult(results: List<Either<Error, Result>>) {
+        val errors = results.flatMap { it.swap().toOption().toList() }
+        val files = results.flatMap { it.toOption().toList() }
+        val deleted = files.filter(Result::wasDeleted)
+        logger.info {
+            """
+              |
+              |----------------------------------------------------------------------------------------------------
+              |Deletion Summary:
+              |----------------------------------------------------------------------------------------------------
+              |Number of errors: ${errors.size}
+              |Number of files deletes: ${deleted.size}
+              |----------------------------------------------------------------------------------------------------
+              |Errors (${errors.size}):
+              |----------------------------------------------------------------------------------------------------
+              |${errors.map { "File: ${it.sourceInfo.file.absolutePath}\nError: ${it.exception.message}" }
+                    .joinToString("\n")}
+              |----------------------------------------------------------------------------------------------------
+              |Files deleted (${deleted.size}):
+              |----------------------------------------------------------------------------------------------------
+              |${deleted.joinToString("\n") { it.sourceInfo.file.absolutePath }}
               |----------------------------------------------------------------------------------------------------
             """.trimMargin()
         }
@@ -94,6 +131,6 @@ class RetentionRunner(private val arguments: Arguments,
     data class Result(val sourceInfo: RetentionLogic.Info,
                       val wasDeleted: Boolean)
 
-    data class Error(val sourceInfo: Either<RetentionLogic.Error, RetentionLogic.Info>,
+    data class Error(val sourceInfo: RetentionLogic.Info,
                      val exception: Throwable)
 }

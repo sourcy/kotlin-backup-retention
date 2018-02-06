@@ -34,7 +34,7 @@ class RetentionFinderTest : AbstractBaseTest() {
     @Test
     fun matchingFilesByExtension() {
         assertThatMatchingFiles(listOf(".*\\.tar\\.gz", ".*\\.tar\\.bz2"), listOf(testSetDirectory))
-                .hasSize(1321)
+                .hasSize(1323)
     }
 
     @Test
