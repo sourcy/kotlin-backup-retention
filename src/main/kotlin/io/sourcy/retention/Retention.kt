@@ -15,7 +15,7 @@ class Retention(private val arguments: Arguments,
 
         val retentionFinder = RetentionFinder(arguments, settings)
         val retentionLogic = RetentionLogic(arguments, settings)
-        val retentionRunner = RetentionRunner(arguments)
+        val retentionRunner = RetentionRunner(arguments, settings)
 
         retentionFinder
                 .findMatchingFilesIn(arguments.directories)

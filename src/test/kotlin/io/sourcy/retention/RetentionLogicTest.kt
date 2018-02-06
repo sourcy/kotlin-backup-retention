@@ -6,13 +6,12 @@ import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.opentest4j.TestAbortedException
-import sun.plugin.dom.exception.InvalidStateException
 import java.io.File
 import java.time.format.DateTimeParseException
 
 class RetentionLogicTest : AbstractBaseTest() {
 
-    private val retentionLogic = RetentionLogic(dryTestRunArgumentsAnd(emptyArray()), testSettings)
+    private val retentionLogic = RetentionLogic(buildArguments(dryTestRunArguments), testSettings)
 
     @Test
     fun testKeepCurrentDaily() {
@@ -120,11 +119,10 @@ class RetentionLogicTest : AbstractBaseTest() {
     private fun assertThatRetentionInfo(result: Either<RetentionLogic.Error, RetentionLogic.Info>): AbstractObjectAssert<*, RetentionLogic.Info> =
             assertThat(assertInfo(result))
 
-    private fun assertInfo(result: Either<RetentionLogic.Error, RetentionLogic.Info>): RetentionLogic.Info {
-        return result.getOrElse {
-            throw TestAbortedException("RetentionInfo.Error $result instead of RetentionInfo.Info")
-        }
-    }
+    private fun assertInfo(result: Either<RetentionLogic.Error, RetentionLogic.Info>): RetentionLogic.Info =
+            result.getOrElse {
+                throw TestAbortedException("RetentionInfo.Error $result instead of RetentionInfo.Info")
+            }
 
     private fun assertThatRetentionError(result: Either<RetentionLogic.Error, RetentionLogic.Info>): AbstractObjectAssert<*, out Throwable> =
             assertThat(assertError(result).exception)

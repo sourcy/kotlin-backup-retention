@@ -18,15 +18,7 @@ class RetentionLogic(private val arguments: Arguments,
 
     private fun toRetentionInfo(file: File): Info {
         val fileDate = extractLocalDate(file)
-        val info = Info(file,
-                true,
-                isWeekly(fileDate),
-                isMonthly(fileDate),
-                isExpired(fileDate))
-        if (arguments.verbose) {
-            logger.info { info }
-        }
-        return info
+        return Info(file, isDaily(fileDate), isWeekly(fileDate), isMonthly(fileDate), isExpired(fileDate))
     }
 
     private fun extractLocalDate(file: File): LocalDate =
@@ -35,11 +27,13 @@ class RetentionLogic(private val arguments: Arguments,
     private fun extractDateString(input: String): String =
             settings.dateRegex().find(input)?.groupValues?.get(1).orEmpty()
 
-    private fun isMonthly(fileDate: LocalDate): Boolean =
-            fileDate.dayOfMonth == settings.monthly.dayOfMonth
+    private fun isDaily(fileDate: LocalDate) = true
 
     private fun isWeekly(fileDate: LocalDate): Boolean =
             fileDate.dayOfWeek == settings.weekly.dayOfWeek
+
+    private fun isMonthly(fileDate: LocalDate): Boolean =
+            fileDate.dayOfMonth == settings.monthly.dayOfMonth
 
     private fun isExpired(fileDate: LocalDate): Boolean =
             !keepDaily(fileDate) &&
@@ -56,11 +50,11 @@ class RetentionLogic(private val arguments: Arguments,
             isMonthly(fileDate) && fileDate.isAfter(arguments.theDate.minusMonths(settings.monthly.keep))
 
     data class Info(val file: File,
-               val isDaily: Boolean,
-               val isWeekly: Boolean,
-               val isMonthly: Boolean,
-               val isExpired: Boolean)
+                    val isDaily: Boolean,
+                    val isWeekly: Boolean,
+                    val isMonthly: Boolean,
+                    val isExpired: Boolean)
 
     data class Error(val file: File,
-                val exception: Throwable)
+                     val exception: Throwable)
 }

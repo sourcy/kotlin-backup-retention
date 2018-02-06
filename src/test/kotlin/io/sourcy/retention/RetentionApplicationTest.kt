@@ -7,17 +7,32 @@ import java.time.format.DateTimeParseException
 class RetentionApplicationTest : AbstractBaseTest() {
     @Test
     fun executesSuccessfullyDry() {
-        RetentionApplication(testSettings).run(dryTestRunArgumentsAnd(arrayOf("--verbose")))
+        main(dryTestRunArguments + arrayOf("--verbose","--force"))
     }
 
     @Test
     fun executesSuccessfullyReal() {
-        RetentionApplication(testSettings).run(testRunArgumentsAnd(arrayOf("--verbose")))
+        main(realTestRunArguments + arrayOf("--verbose","--force"))
+    }
+
+    @Test
+    fun failsDryWithoutForce() {
+        Assertions.assertThatExceptionOfType(IllegalStateException::class.java)
+                .isThrownBy { main(dryTestRunArguments + "--verbose") }
+                .withCauseInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun failsRealWithoutForce() {
+        Assertions.assertThatExceptionOfType(IllegalStateException::class.java)
+                .isThrownBy { main(realTestRunArguments + "--verbose") }
+                .withCauseInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test
     fun failsOnException() {
-        Assertions.assertThatExceptionOfType(DateTimeParseException::class.java)
-                .isThrownBy { RetentionApplication(testSettings).run(customArguments(arrayOf("--verbose", "--fake-date=asdf"))) }
+        Assertions.assertThatExceptionOfType(IllegalStateException::class.java)
+                .isThrownBy { main(arrayOf("--verbose", "--fake-date=asdf")) }
+                .withCauseInstanceOf(DateTimeParseException::class.java)
     }
 }

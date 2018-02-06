@@ -38,9 +38,9 @@ data class Arguments(private val args: ApplicationArguments,
                 args.nonOptionArgs.orEmpty()
                         .map(::toNormalizedFile)
                         .distinct()
-                        .also(::assertNotEmpty)
+                        .also(::requireNotEmpty)
 
-        private fun assertNotEmpty(it: List<File>) {
+        private fun requireNotEmpty(it: List<File>) {
             if (it.isEmpty()) {
                 logger.error { "No directories specified." }
                 throw IllegalArgumentException("No directories specified.")
