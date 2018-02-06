@@ -35,15 +35,20 @@ class RetentionRunner(private val arguments: Arguments,
         }
     }
 
-    private fun runSingleMaybe(it: Either<RetentionLogic.Error, RetentionLogic.Info>) =
-            it.toOption().toList().map(::runSingle)
+    private fun runSingleMaybe(it: Either<RetentionLogic.Error, RetentionLogic.Info>): List<Either<Error, Result>> =
+            it.toOption().toList()
+                    .filter(RetentionLogic.Info::isExpired)
+                    .map(::runSingle)
 
     private fun runSingle(retentionInfo: RetentionLogic.Info): Either<Error, Result> =
-            Try { Result(retentionInfo, false) }
+            Try { deleteFile(retentionInfo) }
                     .toEither()
                     .mapLeft { Error(retentionInfo, it) }
 
-    private fun logSummary(errors: List<RetentionLogic.Error>, files: List<RetentionLogic.Info>, expired: List<RetentionLogic.Info>, percentageToDelete: Int) {
+    private fun deleteFile(retentionInfo: RetentionLogic.Info): Result =
+            Result(retentionInfo, retentionInfo.file.delete())
+
+    private fun logSummary(errors: Collection<RetentionLogic.Error>, files: Collection<RetentionLogic.Info>, expired: Collection<RetentionLogic.Info>, percentageToDelete: Int) {
         logger.info {
             """
               |
@@ -80,7 +85,7 @@ class RetentionRunner(private val arguments: Arguments,
         }
     }
 
-    private fun logResult(results: List<Either<Error, Result>>) {
+    private fun logResult(results: Collection<Either<Error, Result>>) {
         val errors = results.flatMap { it.swap().toOption().toList() }
         val files = results.flatMap { it.toOption().toList() }
         val deleted = files.filter(Result::wasDeleted)

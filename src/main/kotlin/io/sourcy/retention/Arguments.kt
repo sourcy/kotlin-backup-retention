@@ -40,7 +40,7 @@ data class Arguments(private val args: ApplicationArguments,
                         .distinct()
                         .also(::requireNotEmpty)
 
-        private fun requireNotEmpty(it: List<File>) {
+        private fun requireNotEmpty(it: Collection<File>) {
             if (it.isEmpty()) {
                 logger.error { "No directories specified." }
                 throw IllegalArgumentException("No directories specified.")
