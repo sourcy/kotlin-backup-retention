@@ -19,7 +19,7 @@ class Retention(private val arguments: Arguments,
 
         retentionFinder
                 .findMatchingFilesIn(arguments.directories)
-                .map(retentionLogic::calculateRetentionInfo)
+                .let(retentionLogic::calculate)
                 .let(retentionRunner::run)
 
         logger.info { "Finished retention." }

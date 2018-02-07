@@ -1,24 +1,47 @@
 package io.sourcy.retention
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.data.Try
+import arrow.syntax.either.right
 import mu.KLogging
 import java.io.File
 import java.time.LocalDate
+import kotlin.math.max
 
 
 class RetentionLogic(private val arguments: Arguments,
                      private val settings: Settings) {
     companion object : KLogging()
 
-    fun calculateRetentionInfo(file: File): Either<Error, Info> =
+    fun calculate(files: Collection<File>): List<Either<Error, Info>> =
+            files.groupBy { it.parentFile }
+                    .flatMap { calculateDirectory(it.value) }
+
+    fun calculateDirectory(filesInDirectory: Collection<File>): List<Either<Error, Info>> =
+            filesInDirectory
+                    .map(::calculateFile)
+                    .let(::calculateMinKeep)
+
+    fun calculateFile(file: File): Either<Error, FileOnlyInfo> =
             Try { file.let(::toRetentionInfo) }
                     .toEither()
                     .mapLeft { Error(file, it) }
 
-    private fun toRetentionInfo(file: File): Info {
+    private fun toRetentionInfo(file: File): FileOnlyInfo {
         val fileDate = extractLocalDate(file)
-        return Info(file, isDaily(fileDate), isWeekly(fileDate), isMonthly(fileDate), isExpired(fileDate))
+        return FileOnlyInfo(file, fileDate, isDaily(fileDate), isWeekly(fileDate), isMonthly(fileDate), isExpired(fileDate))
+    }
+
+    fun calculateMinKeep(filesInDirectory: Collection<Either<Error, FileOnlyInfo>>): List<Either<Error, Info>> {
+        val files = filesInDirectory.flatMap { it.toOption().toList() }
+        val keptFiles = files.filter { !it.isExpired }
+        val numToKeep = max(0, settings.files.minKeepPerDirectory - keptFiles.size)
+
+        val additionalFilesToKeep = files.sortedByDescending { it.fileDate }
+                .take(numToKeep)
+
+        return filesInDirectory.map { it.flatMap { Info(it, additionalFilesToKeep.contains(it)).right() } }
     }
 
     private fun extractLocalDate(file: File): LocalDate =
@@ -49,11 +72,21 @@ class RetentionLogic(private val arguments: Arguments,
     private fun keepMonthly(fileDate: LocalDate): Boolean =
             isMonthly(fileDate) && fileDate.isAfter(arguments.theDate.minusMonths(settings.monthly.keep))
 
-    data class Info(val file: File,
-                    val isDaily: Boolean,
-                    val isWeekly: Boolean,
-                    val isMonthly: Boolean,
-                    val isExpired: Boolean)
+    data class Info(private val fileOnlyInfo: FileOnlyInfo,
+                    val isMinKeep: Boolean,
+                    val file: File = fileOnlyInfo.file,
+                    val fileDate: LocalDate = fileOnlyInfo.fileDate,
+                    val isDaily: Boolean = fileOnlyInfo.isDaily,
+                    val isWeekly: Boolean = fileOnlyInfo.isWeekly,
+                    val isMonthly: Boolean = fileOnlyInfo.isMonthly,
+                    val isExpired: Boolean = fileOnlyInfo.isExpired && !isMinKeep)
+
+    data class FileOnlyInfo(val file: File,
+                            val fileDate: LocalDate,
+                            val isDaily: Boolean,
+                            val isWeekly: Boolean,
+                            val isMonthly: Boolean,
+                            val isExpired: Boolean)
 
     data class Error(val file: File,
                      val exception: Throwable)

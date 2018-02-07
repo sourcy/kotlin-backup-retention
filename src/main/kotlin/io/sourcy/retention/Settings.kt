@@ -42,6 +42,7 @@ data class MonthlyRetentionSettings(var keep: Long = 36,
                                     var dayOfMonth: Int = 1)
 
 data class FileSettings(var maxPercentDelete: Int = 10,
+                        var minKeepPerDirectory: Int = 10,
                         var fileNameRegexPatterns: List<String> = emptyList()) {
     fun fileNameRegexps(): List<Regex> =
             fileNameRegexPatterns.map(::Regex)

@@ -4,6 +4,7 @@ import arrow.syntax.either.right
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.time.LocalDate
 
 class RetentionRunnerTest : AbstractBaseTest() {
 
@@ -25,9 +26,9 @@ class RetentionRunnerTest : AbstractBaseTest() {
     }
 
     private fun fileToDelete() =
-            RetentionLogic.Info(File(""), false, false, false, false).right()
+            RetentionLogic.Info(RetentionLogic.FileOnlyInfo(File(""), LocalDate.now(), false, false, false, false), false).right()
 
     private fun fileToKeep() =
-            RetentionLogic.Info(File(""), false, false, false, true).right()
+            RetentionLogic.Info(RetentionLogic.FileOnlyInfo(File(""), LocalDate.now(), false, false, false, true), false).right()
 
 }

@@ -1,6 +1,7 @@
 package io.sourcy.retention
 
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.format.DateTimeParseException
 
@@ -11,6 +12,7 @@ class RetentionApplicationTest : AbstractBaseTest() {
     }
 
     @Test
+    @Disabled("deletes files, breaks other tests")
     fun executesSuccessfullyReal() {
         main(realTestRunArguments + arrayOf("--verbose","--force"))
     }

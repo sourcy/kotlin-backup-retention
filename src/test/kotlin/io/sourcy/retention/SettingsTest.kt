@@ -17,12 +17,13 @@ class SettingsTest : AbstractBaseTest() {
                 .isEqualTo("20170215")
 
         assertThat(testSettings.daily.keep).isEqualTo(1337)
-        assertThat(testSettings.weekly.keep).isEqualTo(1337)
+        assertThat(testSettings.weekly.keep).isEqualTo(1338)
         assertThat(testSettings.weekly.dayOfWeek).isEqualTo(WEDNESDAY)
-        assertThat(testSettings.monthly.keep).isEqualTo(1337)
+        assertThat(testSettings.monthly.keep).isEqualTo(1339)
         assertThat(testSettings.monthly.dayOfMonth).isEqualTo(15)
 
-        assertThat(testSettings.files.maxPercentDelete).isEqualTo(1337)
+        assertThat(testSettings.files.maxPercentDelete).isEqualTo(1340)
+        assertThat(testSettings.files.minKeepPerDirectory).isEqualTo(1341)
         assertThat(testSettings.files.fileNameRegexPatterns)
                 .hasSize(2)
                 .containsExactlyElementsOf(listOf(".*\\.foo\\.bar",".*\\.far"))

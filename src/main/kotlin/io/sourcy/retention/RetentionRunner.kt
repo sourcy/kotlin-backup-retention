@@ -9,7 +9,7 @@ class RetentionRunner(private val arguments: Arguments,
                       private val settings: Settings) {
     companion object : KLogging()
 
-    fun run(retentionInfos: Iterable<Either<RetentionLogic.Error, RetentionLogic.Info>>): List<Either<Error, Result>> {
+    fun run(retentionInfos: Collection<Either<RetentionLogic.Error, RetentionLogic.Info>>): List<Either<Error, Result>> {
         val errors = retentionInfos.flatMap { it.swap().toOption().toList() }
         val files = retentionInfos.flatMap { it.toOption().toList() }
         val expired = files.filter(RetentionLogic.Info::isExpired)
@@ -26,7 +26,7 @@ class RetentionRunner(private val arguments: Arguments,
         return result
     }
 
-    private fun runAllMaybe(retentionInfos: Iterable<Either<RetentionLogic.Error, RetentionLogic.Info>>): List<Either<Error, Result>> {
+    private fun runAllMaybe(retentionInfos: Collection<Either<RetentionLogic.Error, RetentionLogic.Info>>): List<Either<Error, Result>> {
         return if (arguments.dryRun) {
             logger.info("Dry Run. Doing nothing.")
             emptyList()

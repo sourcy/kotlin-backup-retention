@@ -7,7 +7,7 @@ class RetentionFinder(private val arguments: Arguments,
                       private val settings: Settings) {
     companion object : KLogging()
 
-    fun findMatchingFilesIn(directories: Iterable<File>): List<File> =
+    fun findMatchingFilesIn(directories: Collection<File>): List<File> =
             directories.asSequence()
                     .filter(File::exists)
                     .map(File::getAbsoluteFile)
