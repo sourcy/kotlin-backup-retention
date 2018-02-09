@@ -8,37 +8,37 @@ import java.io.File
 class RetentionFinderTest : AbstractBaseTest() {
 
     @Test
-    fun noMatchingFilesInNoPatterns() {
+    fun `don't find files if no patterns provided`() {
         assertThatMatchingFiles(listOf(), listOf(testSetDirectory))
                 .hasSize(0)
     }
 
     @Test
-    fun noMatchingFiles() {
+    fun `don't find files if none matches a regex`() {
         assertThatMatchingFiles(listOf(".*asdf.*"), listOf(testSetDirectory))
                 .hasSize(0)
     }
 
     @Test
-    fun matchingFilesOneRegex() {
+    fun `find files matching one expression`() {
         assertThatMatchingFiles(listOf(".*a-domain.*"), listOf(testSetDirectory))
                 .hasSize(460)
     }
 
     @Test
-    fun matchingFilesMultiRegex() {
+    fun `find files matching one of multiple expressions`() {
         assertThatMatchingFiles(listOf(".*a-domain.*", ".*b-domain.*"), listOf(testSetDirectory))
                 .hasSize(474)
     }
 
     @Test
-    fun matchingFilesByExtension() {
+    fun `find files by file extension expressions`() {
         assertThatMatchingFiles(listOf(".*\\.tar\\.gz", ".*\\.tar\\.bz2"), listOf(testSetDirectory))
                 .hasSize(1323)
     }
 
     @Test
-    fun matchingFilesMultipleDirectories() {
+    fun `find files in multiple directories by multiple expressions`() {
         assertThatMatchingFiles(
                 listOf(".*\\.tar\\.gz", ".*\\.tar\\.bz2"),
                 listOf(testSetDirectory.resolve("a-domain.com"), testSetDirectory.resolve("e-domain.guide"))

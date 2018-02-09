@@ -9,7 +9,7 @@ import java.time.DayOfWeek.WEDNESDAY
 @TestPropertySource(locations = ["classpath:crazy.properties"])
 class SettingsTest : AbstractBaseTest() {
     @Test
-    fun loadsSettingsFromProperties() {
+    fun `can load all settings from a properties file`() {
         assertThat(testSettings.dateRegexPattern).isEqualTo(".*_(\\d{8})_.*")
         assertThat(testSettings.dateRegex().pattern).isEqualTo(".*_(\\d{8})_.*")
         assertThat(testSettings.dateFormat).isEqualTo("uuuuMMdd")
