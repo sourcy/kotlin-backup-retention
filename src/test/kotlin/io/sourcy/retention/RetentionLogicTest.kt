@@ -19,21 +19,21 @@ class RetentionLogicTest : AbstractBaseTest() {
         @Test
         fun `keeps current daily`() {
             val result = retentionLogic.calculateFile(File("some_2018-01-18_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isDaily && !it.isExpired }
         }
 
         @Test
         fun `keeps 7 dailies`() {
             val result = retentionLogic.calculateFile(File("some_2018-01-12_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isDaily && !it.isExpired }
         }
 
         @Test
         fun `expires 8th daily`() {
             val result = retentionLogic.calculateFile(File("some_2018-01-11_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isDaily && it.isExpired }
         }
     }
@@ -43,21 +43,21 @@ class RetentionLogicTest : AbstractBaseTest() {
         @Test
         fun `keeps current weekly`() {
             val result = retentionLogic.calculateFile(File("some_2018-01-14_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isWeekly && !it.isExpired }
         }
 
         @Test
         fun `keeps 8 weeklies`() {
             val result = retentionLogic.calculateFile(File("some_2017-11-26_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isWeekly && !it.isExpired }
         }
 
         @Test
         fun `expires 9th weekly`() {
             val result = retentionLogic.calculateFile(File("some_2017-11-19_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isWeekly && it.isExpired }
         }
     }
@@ -67,21 +67,21 @@ class RetentionLogicTest : AbstractBaseTest() {
         @Test
         fun `keeps current monthly`() {
             val result = retentionLogic.calculateFile(File("some_2018-01-01_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isMonthly && !it.isExpired }
         }
 
         @Test
         fun `keeps 36 monthlies`() {
             val result = retentionLogic.calculateFile(File("some_2015-02-01_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isMonthly && !it.isExpired }
         }
 
         @Test
         fun `expires 37th monthly`() {
             val result = retentionLogic.calculateFile(File("some_2015-01-01_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isMonthly && it.isExpired }
         }
     }
@@ -89,23 +89,23 @@ class RetentionLogicTest : AbstractBaseTest() {
     @Nested
     inner class `expiry calculation with file in multiple retention sets (daily, weekly, monthly)` {
         @Test
-        fun `near future + all sets = not expired`  () {
+        fun `near future + all sets = not expired`() {
             val result = retentionLogic.calculateFile(File("some_2017-10-01_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isDaily && it.isWeekly && it.isMonthly && !it.isExpired }
         }
 
         @Test
         fun `far future + all sets = expired`() {
             val result = retentionLogic.calculateFile(File("some_2009-11-01_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isDaily && it.isWeekly && it.isMonthly && it.isExpired }
         }
 
         @Test
         fun `near future + no set = expired`() {
             val result = retentionLogic.calculateFile(File("some_2017-12-28_05-07-59.tar.gz"))
-            assertThatRetentionInfo(result)
+            assertThatFileRetentionInfo(result)
                     .matches { it.isDaily && !it.isWeekly && !it.isMonthly && it.isExpired }
         }
     }
@@ -115,39 +115,65 @@ class RetentionLogicTest : AbstractBaseTest() {
         @Test
         fun `generates error on invalid date`() {
             val result = retentionLogic.calculateFile(File("some_2017-10-99_05-07-59.tar.gz"))
-            assertThatRetentionError(result)
+            assertThatFileRetentionError(result)
                     .isInstanceOf(DateTimeParseException::class.java)
         }
 
         @Test
         fun `generates error on missing date`() {
             val result = retentionLogic.calculateFile(File("some.tar.gz"))
-            assertThatRetentionError(result)
+            assertThatFileRetentionError(result)
                     .isInstanceOf(DateTimeParseException::class.java)
         }
     }
 
-    @Nested
-    inner class `keep minimum number of files per directory`  {
-        // TODO
+    @Test
+    fun `keep minimum number of files in a directory`() {
+        val expiredDirectory =
+                List(15) { File("somedir/some_0001-01-${String.format("%02d", it + 1)}_some.tar.gz") }
+
+        val result = retentionLogic.calculateDirectory(expiredDirectory)
+        assertThatNumMinKeep(result).isEqualTo(10)
     }
 
-    // TODO: tests for min keep and test for new calculate(files) method
+    @Test
+    fun `keep minimum number of files per directory`() {
+        val expiredDirectories =
+                List(15) { File("somedir/some_0001-01-${String.format("%02d", it + 1)}_some.tar.gz") } +
+                        List(20) { File("somedir/subdir1/some_0001-01-${String.format("%02d", it + 1)}_some.tar.gz") } +
+                        List(7) { File("somedir/subdir2/some_0001-01-${String.format("%02d", it + 1)}_some.tar.gz") }
 
-    private fun assertThatRetentionInfo(result: Either<RetentionLogic.Error, RetentionLogic.FileOnlyInfo>): AbstractObjectAssert<*, RetentionLogic.FileOnlyInfo> =
-            assertThat(assertInfo(result))
+        val result = retentionLogic.calculate(expiredDirectories)
+        assertThatNumMinKeep(result).isEqualTo(27)
+    }
 
-    private fun assertInfo(result: Either<RetentionLogic.Error, RetentionLogic.FileOnlyInfo>): RetentionLogic.FileOnlyInfo =
+    private fun assertThatFileRetentionInfo(result: Either<RetentionLogic.Error, RetentionLogic.FileOnlyInfo>): AbstractObjectAssert<*, RetentionLogic.FileOnlyInfo> =
+            assertThat(getFileInfo(result))
+
+    private fun assertThatFileRetentionError(result: Either<RetentionLogic.Error, RetentionLogic.FileOnlyInfo>): AbstractObjectAssert<*, out Throwable> =
+            assertThat(getFileError(result).exception)
+
+    private fun assertThatNumMinKeep(result: List<Either<RetentionLogic.Error, RetentionLogic.Info>>) =
+            assertThat(result
+                    .map(::getDirectoryInfo)
+                    .filter { it.isMinKeep }
+                    .filter { !it.isExpired }
+                    .size
+            )
+
+    private fun getFileInfo(result: Either<RetentionLogic.Error, RetentionLogic.FileOnlyInfo>): RetentionLogic.FileOnlyInfo =
+            result.getOrElse {
+                throw TestAbortedException("RetentionInfo.Error $result instead of RetentionInfo.FileOnlyInfo")
+            }
+
+    private fun getDirectoryInfo(result: Either<RetentionLogic.Error, RetentionLogic.Info>): RetentionLogic.Info =
             result.getOrElse {
                 throw TestAbortedException("RetentionInfo.Error $result instead of RetentionInfo.Info")
             }
 
-    private fun assertThatRetentionError(result: Either<RetentionLogic.Error, RetentionLogic.FileOnlyInfo>): AbstractObjectAssert<*, out Throwable> =
-            assertThat(assertError(result).exception)
-
-    private fun assertError(result: Either<RetentionLogic.Error, RetentionLogic.FileOnlyInfo>): RetentionLogic.Error {
+    private fun getFileError(result: Either<RetentionLogic.Error, RetentionLogic.FileOnlyInfo>): RetentionLogic.Error {
         return result.swap().getOrElse {
-            throw TestAbortedException("RetentionInfo.Info $result instead of RetentionInfo.Error")
+            throw TestAbortedException("RetentionInfo.FileOnlyInfo $result instead of RetentionInfo.Error")
         }
     }
 }

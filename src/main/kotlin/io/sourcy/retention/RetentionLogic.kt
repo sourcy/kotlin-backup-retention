@@ -38,7 +38,8 @@ class RetentionLogic(private val arguments: Arguments,
         val keptFiles = files.filter { !it.isExpired }
         val numToKeep = max(0, settings.files.minKeepPerDirectory - keptFiles.size)
 
-        val additionalFilesToKeep = files.sortedByDescending { it.fileDate }
+        val expiredFiles = files.filter { it.isExpired }
+        val additionalFilesToKeep = expiredFiles.sortedByDescending { it.fileDate }
                 .take(numToKeep)
 
         return filesInDirectory.map { it.flatMap { Info(it, additionalFilesToKeep.contains(it)).right() } }

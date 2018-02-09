@@ -26,7 +26,7 @@ class RetentionApplicationTest : AbstractBaseTest() {
     }
 
     @Test
-    @Disabled("deletes files, breaks other tests")
+    @Disabled("TODO: deletes files, breaks other tests")
     fun `executes a real run with --force`() {
         main(realTestRunArguments + arrayOf("--verbose","--force"))
     }
