@@ -48,7 +48,7 @@ class RetentionApplicationTest : AbstractBaseTest() {
         assertThatMatchingFiles(listOf(tempTestSetDirectory))
                 .hasSize(1323)
 
-        main(arrayOf("--verbose","--force", testSetFakeDate, tempTestSetDirectory.absolutePath))
+        main(arrayOf("--force", testSetFakeDate, tempTestSetDirectory.absolutePath))
 
         assertThatMatchingFiles(listOf(tempTestSetDirectory))
                 .hasSize(125)
