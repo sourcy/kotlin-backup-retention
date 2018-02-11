@@ -33,7 +33,7 @@ class RetentionLogic(private val arguments: Arguments,
         return FileOnlyInfo(file, fileDate, isDaily(fileDate), isWeekly(fileDate), isMonthly(fileDate), isExpired(fileDate))
     }
 
-    fun calculateMinKeep(filesInDirectory: Collection<Either<Error, FileOnlyInfo>>): List<Either<Error, Info>> {
+    private fun calculateMinKeep(filesInDirectory: Collection<Either<Error, FileOnlyInfo>>): List<Either<Error, Info>> {
         val files = filesInDirectory.flatMap { it.toOption().toList() }
         val keptFiles = files.filter { !it.isExpired }
         val numToKeep = max(0, settings.files.minKeepPerDirectory - keptFiles.size)
