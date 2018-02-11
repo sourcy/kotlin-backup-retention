@@ -13,8 +13,8 @@ import java.io.File
 @EnableConfigurationProperties(Settings::class)
 abstract class AbstractBaseTest {
     val testSetDirectory = File("./src/test/resources/testset")
-    val realTestRunArguments = arrayOf("--fake-date=2018-01-18", testSetDirectory.absolutePath)
-    val dryTestRunArguments = arrayOf(*realTestRunArguments, "--dry")
+    val testSetFakeDate = "--fake-date=2018-01-18"
+    val defaultTestArguments = arrayOf(testSetFakeDate, testSetDirectory.absolutePath, "--dry")
 
     @Autowired
     var testSettings = Settings()

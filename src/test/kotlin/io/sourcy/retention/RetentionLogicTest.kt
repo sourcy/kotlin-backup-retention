@@ -12,7 +12,7 @@ import java.time.format.DateTimeParseException
 
 class RetentionLogicTest : AbstractBaseTest() {
 
-    private val retentionLogic = RetentionLogic(buildArguments(dryTestRunArguments), testSettings)
+    private val retentionLogic = RetentionLogic(buildArguments(defaultTestArguments), testSettings)
 
     @Nested
     inner class `dailies calculation` {

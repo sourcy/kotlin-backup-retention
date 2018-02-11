@@ -3,8 +3,10 @@ buildscript {
         kotlinVersion = '1.2.21'
         kotlinLoggingVersion = '1.4.9'
         springBootVersion = '2.0.0.RC1'
+        commonsIOVersion = '2.6'
         junitPlatformVersion = '1.0.3'
         junitVersion = '5.0.3'
+        junitExtensionsVersion = '1.1.0'
         assertJVersion = '3.9.0'
         arrowVersion = '0.6.1'
     }
@@ -54,6 +56,8 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter')
     compile("org.springframework.boot:spring-boot-configuration-processor")
 
+    compile("commons-io:commons-io:${commonsIOVersion}")
+
     compile("io.arrow-kt:arrow-core:${arrowVersion}")
     compile("io.arrow-kt:arrow-typeclasses:${arrowVersion}")
     compile("io.arrow-kt:arrow-data:${arrowVersion}")
@@ -66,5 +70,6 @@ dependencies {
     }
     testCompile("org.assertj:assertj-core:${assertJVersion}")
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testCompile("io.github.glytching:junit-extensions:${junitExtensionsVersion}")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }

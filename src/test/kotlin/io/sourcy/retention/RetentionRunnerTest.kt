@@ -11,7 +11,7 @@ class RetentionRunnerTest : AbstractBaseTest() {
     @Test
     fun `fail if max delete threshold is exceeded`() {
         val fiftyPercentToDelete = (1..5).map { fileToDelete() } + (1..5).map { fileToKeep() }
-        val retentionRunner = RetentionRunner(buildArguments(dryTestRunArguments), testSettings)
+        val retentionRunner = RetentionRunner(buildArguments(defaultTestArguments), testSettings)
 
         Assertions.assertThatExceptionOfType(IllegalArgumentException::class.java)
                 .isThrownBy { retentionRunner.run(fiftyPercentToDelete) }
@@ -20,7 +20,7 @@ class RetentionRunnerTest : AbstractBaseTest() {
     @Test
     fun `succeed if max delete threshold is exceeded but --force is supplied`() {
         val fiftyPercentToDelete = (1..5).map { fileToDelete() } + (1..5).map { fileToKeep() }
-        val retentionRunner = RetentionRunner(buildArguments(dryTestRunArguments + "--force"), testSettings)
+        val retentionRunner = RetentionRunner(buildArguments(defaultTestArguments + arrayOf("--force")), testSettings)
 
         retentionRunner.run(fiftyPercentToDelete)
     }
