@@ -8,10 +8,8 @@ class Retention(private val arguments: Arguments,
 
     fun run() {
         logger.info { "Starting retention." }
-        if (arguments.verbose) {
-            logger.info { "Settings: $settings" }
-            logger.info { "Arguments: $arguments" }
-        }
+        logger.info { "Settings: $settings" }
+        logger.info { "Arguments: $arguments" }
 
         val retentionFinder = RetentionFinder(arguments, settings)
         val retentionLogic = RetentionLogic(arguments, settings)

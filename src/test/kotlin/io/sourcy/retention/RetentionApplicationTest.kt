@@ -31,12 +31,12 @@ class RetentionApplicationTest : AbstractBaseTest() {
     @Test
     fun `executes a dry run with --force but doesn't delete files`() {
         assertThatMatchingFiles(listOf(testSetDirectory))
-                .hasSize(1323)
+                .hasSize(1324)
 
         main(arrayOf("--dry", "--verbose","--force", testSetFakeDate, testSetDirectory.absolutePath))
 
         assertThatMatchingFiles(listOf(testSetDirectory))
-                .hasSize(1323)
+                .hasSize(1324)
     }
 
     @Test
@@ -46,12 +46,12 @@ class RetentionApplicationTest : AbstractBaseTest() {
         FileUtils.copyDirectory(testSetDirectory, tempTestSetDirectory)
 
         assertThatMatchingFiles(listOf(tempTestSetDirectory))
-                .hasSize(1323)
+                .hasSize(1324)
 
         main(arrayOf("--force", testSetFakeDate, tempTestSetDirectory.absolutePath))
 
         assertThatMatchingFiles(listOf(tempTestSetDirectory))
-                .hasSize(125)
+                .hasSize(126)
     }
 
     private fun assertThatMatchingFiles(directories: List<File>): ListAssert<File> {
